@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Box, Typography, List, ListItem, ListItemIcon, ListItemText } from '@mui/material';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import ChecklistIcon from '@mui/icons-material/Checklist';
@@ -9,6 +9,39 @@ import SmartToyIcon from '@mui/icons-material/SmartToy';
 import SettingsIcon from '@mui/icons-material/Settings';
 
 const Sidebar = ({ activeTab, setActiveTab }) => {
+  const [pomodoroState, setPomodoroState] = useState(null);
+
+  useEffect(() => {
+    const updatePomodoroState = () => {
+      const saved = localStorage.getItem('nexus-pomodoro-state');
+      if (saved) {
+        const state = JSON.parse(saved);
+        const elapsed = Math.floor((Date.now() - state.lastUpdate) / 1000);
+        if (state.isRunning && elapsed < state.timeLeft) {
+          setPomodoroState({
+            timeLeft: state.timeLeft - elapsed,
+            isBreak: state.isBreak
+          });
+        } else if (state.isRunning) {
+          setPomodoroState(null);
+        } else {
+          setPomodoroState(null);
+        }
+      } else {
+        setPomodoroState(null);
+      }
+    };
+
+    updatePomodoroState();
+    const interval = setInterval(updatePomodoroState, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const formatTime = (seconds) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  };
   const menuItems = [
     { id: 'dashboard', label: 'Dashboard', icon: <DashboardIcon /> },
     { id: 'todo', label: 'To-Do List', icon: <ChecklistIcon /> },
@@ -165,6 +198,53 @@ const Sidebar = ({ activeTab, setActiveTab }) => {
           </ListItem>
         ))}
       </List>
+
+      {/* Mini Pomodoro Timer */}
+      {pomodoroState && activeTab !== 'pomodoro' && (
+        <Box
+          onClick={() => setActiveTab('pomodoro')}
+          sx={{
+            mx: 2,
+            mb: 2,
+            p: 2,
+            background: 'linear-gradient(135deg, rgba(255, 0, 64, 0.1) 0%, rgba(0, 255, 255, 0.1) 100%)',
+            border: `1px solid ${pomodoroState.isBreak ? '#00ffff' : '#ff0040'}`,
+            borderRadius: '4px',
+            cursor: 'pointer',
+            transition: 'all 0.3s ease',
+            '&:hover': {
+              background: 'linear-gradient(135deg, rgba(255, 0, 64, 0.2) 0%, rgba(0, 255, 255, 0.2) 100%)',
+              transform: 'translateY(-2px)',
+            },
+          }}
+        >
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
+            <Typography
+              variant="caption"
+              sx={{
+                color: pomodoroState.isBreak ? '#00ffff' : '#ff0040',
+                fontFamily: '"Orbitron", sans-serif',
+                fontSize: '0.7rem',
+                textTransform: 'uppercase',
+              }}
+            >
+              {pomodoroState.isBreak ? 'Break' : 'Focus'}
+            </Typography>
+            <TimerIcon sx={{ fontSize: 16, color: pomodoroState.isBreak ? '#00ffff' : '#ff0040' }} />
+          </Box>
+          <Typography
+            variant="h5"
+            sx={{
+              color: pomodoroState.isBreak ? '#00ffff' : '#ff0040',
+              fontFamily: '"Orbitron", sans-serif',
+              fontWeight: 700,
+              textAlign: 'center',
+            }}
+          >
+            {formatTime(pomodoroState.timeLeft)}
+          </Typography>
+        </Box>
+      )}
 
       {/* Footer */}
       <Box
