@@ -3,6 +3,7 @@ import { Box, Typography, List, ListItem, ListItemIcon, ListItemText } from '@mu
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import ChecklistIcon from '@mui/icons-material/Checklist';
 import ViewKanbanIcon from '@mui/icons-material/ViewKanban';
+import DescriptionIcon from '@mui/icons-material/Description';
 import TimerIcon from '@mui/icons-material/Timer';
 import SmartToyIcon from '@mui/icons-material/SmartToy';
 import SettingsIcon from '@mui/icons-material/Settings';
@@ -12,6 +13,7 @@ const Sidebar = ({ activeTab, setActiveTab }) => {
     { id: 'dashboard', label: 'Dashboard', icon: <DashboardIcon /> },
     { id: 'todo', label: 'To-Do List', icon: <ChecklistIcon /> },
     { id: 'kanban', label: 'Kanban Board', icon: <ViewKanbanIcon /> },
+    { id: 'notes', label: 'Notes', icon: <DescriptionIcon /> },
     { id: 'pomodoro', label: 'Pomodoro', icon: <TimerIcon /> },
     { id: 'agents', label: 'Agents', icon: <SmartToyIcon /> },
     { id: 'settings', label: 'Settings', icon: <SettingsIcon /> },

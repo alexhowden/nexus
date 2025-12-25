@@ -4,6 +4,7 @@ import Sidebar from './components/Sidebar';
 import Dashboard from './components/Dashboard';
 import TodoList from './components/TodoList';
 import KanbanBoard from './components/KanbanBoard';
+import Notes from './components/Notes';
 import PomodoroTimer from './components/PomodoroTimer';
 import Agents from './components/Agents';
 import Settings from './components/Settings';
@@ -17,9 +18,18 @@ function App() {
     return savedTasks ? JSON.parse(savedTasks) : [];
   });
 
+  const [notes, setNotes] = useState(() => {
+    const savedNotes = localStorage.getItem('nexus-notes');
+    return savedNotes ? JSON.parse(savedNotes) : [];
+  });
+
   useEffect(() => {
     localStorage.setItem('nexus-tasks', JSON.stringify(tasks));
   }, [tasks]);
+
+  useEffect(() => {
+    localStorage.setItem('nexus-notes', JSON.stringify(notes));
+  }, [notes]);
 
   const addTask = (taskData) => {
     const newTask = {
@@ -60,6 +70,27 @@ function App() {
     }));
   };
 
+  const addNote = (noteData) => {
+    const newNote = {
+      id: Date.now().toString(),
+      title: noteData.title,
+      content: noteData.content || '',
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+    };
+    setNotes([...notes, newNote]);
+  };
+
+  const updateNote = (noteId, updates) => {
+    setNotes(notes.map(note =>
+      note.id === noteId ? { ...note, ...updates, updatedAt: Date.now() } : note
+    ));
+  };
+
+  const deleteNote = (noteId) => {
+    setNotes(notes.filter(note => note.id !== noteId));
+  };
+
   const renderContent = () => {
     switch (activeTab) {
       case 'dashboard':
@@ -77,6 +108,13 @@ function App() {
           tasks={tasks}
           updateTask={updateTask}
           deleteTask={deleteTask}
+        />;
+      case 'notes':
+        return <Notes
+          notes={notes}
+          addNote={addNote}
+          updateNote={updateNote}
+          deleteNote={deleteNote}
         />;
       case 'pomodoro':
         return <PomodoroTimer />;
