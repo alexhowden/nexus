@@ -1,26 +1,15 @@
 # Nexus
 
-A cyberpunk-themed AI automation platform for handling boring tasks. Built with React, Material-UI, and Electron.
+A cyberpunk-themed task management app with a sleek UI. Built with React, Material-UI, and Electron.
 
-## 🎯 Vision
+## ✨ Features
 
-Nexus is your AI-powered automation hub that eliminates boring, repetitive tasks. Built to integrate with Gmail, Google Calendar, and Google Tasks, it intelligently manages your digital life.
+- **To-Do List**: Add, complete, and delete tasks with priority levels
+- **Kanban Board**: Drag-and-drop tasks between columns (To Do, In Progress, Review, Done)
+- **Dashboard**: Overview widgets for quick access
+- **localStorage**: Tasks persist across sessions
 
-### Core Features
-- **Gmail → Calendar**: Auto-extract events from emails (flights, hotels, appointments)
-- **Task Automation**: Parse emails for action items and sync with Google Tasks
-- **Unified To-Do List**: Manage all tasks from one place with smart prioritization
-- **Email Management**: Smart categorization, priority detection, auto-archiving
-
-### Planned Automations
-- **Meeting Assistant**: Prep, notes, and action item extraction
-- **Travel Automation**: Itinerary building, flight tracking, packing lists
-- **Bill Tracking**: Payment reminders and expense categorization
-- **Contact Management**: Auto-update contacts, birthday reminders, follow-ups
-- **Document Organization**: Smart filing, receipt management, search
-- **Shopping & Errands**: Lists, price tracking, package tracking
-
-See [docs/FEATURES.md](docs/FEATURES.md) for detailed feature documentation.
+See [docs/FEATURES.md](docs/FEATURES.md) for more details.
 
 ## 🚀 Quick Start
 
@@ -37,40 +26,14 @@ npm run start:electron
 
 ## 🛠️ Tech Stack
 
-- **Frontend**: React + Material-UI with cyberpunk theme
-- **Desktop**: Electron (optional)
-- **Styling**: Custom cyberpunk theme with animations
-
-## 📁 Project Structure
-
-```
-nexus/
-├── src/
-│   ├── components/     # React components
-│   ├── App.js          # Main app component
-│   ├── App.css         # Cyberpunk styling
-│   └── index.js        # Theme configuration
-├── public/             # Static assets
-└── electron/           # Electron configuration (optional)
-```
+- React + Material-UI
+- Electron (desktop app)
+- @dnd-kit (drag-and-drop)
+- localStorage (persistence)
 
 ## 🎨 UI Theme
 
-The app features a custom cyberpunk theme with:
-- Neon pink (#ff0040) and cyan (#00ffff) accents
-- Orbitron and Rajdhani fonts
-- Scanline and noise effects
-- Glowing buttons and borders
-- Smooth animations
-
-## 🔮 Roadmap
-
-This is a barebones starter. Future development will focus on:
-1. AI agent integration
-2. Gmail API connection
-3. Google Calendar automation
-4. Task extraction and management
-5. Custom automation workflows
+Cyberpunk-inspired with neon pink/cyan accents, scanline effects, and custom fonts (Orbitron & Rajdhani).
 
 ## License
 
