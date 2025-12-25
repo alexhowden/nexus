@@ -54,18 +54,32 @@ const TaskCard = ({ task, deleteTask }) => {
       }}
     >
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1 }}>
-        <Typography
-          variant="body1"
-          sx={{
-            color: '#fff',
-            fontFamily: '"Rajdhani", sans-serif',
-            fontSize: '1rem',
-            fontWeight: 500,
-            flex: 1,
-          }}
-        >
-          {task.title}
-        </Typography>
+        <Box sx={{ flex: 1 }}>
+          <Typography
+            variant="body1"
+            sx={{
+              color: '#fff',
+              fontFamily: '"Rajdhani", sans-serif',
+              fontSize: '1rem',
+              fontWeight: 500,
+            }}
+          >
+            {task.title}
+          </Typography>
+          {task.description && (
+            <Typography
+              variant="body2"
+              sx={{
+                color: 'rgba(255, 255, 255, 0.6)',
+                fontFamily: '"Rajdhani", sans-serif',
+                fontSize: '0.85rem',
+                mt: 0.5,
+              }}
+            >
+              {task.description}
+            </Typography>
+          )}
+        </Box>
         <IconButton
           size="small"
           onClick={(e) => {
@@ -83,24 +97,40 @@ const TaskCard = ({ task, deleteTask }) => {
           <DeleteIcon fontSize="small" />
         </IconButton>
       </Box>
-      <Chip
-        label={task.priority.toUpperCase()}
-        size="small"
-        sx={{
-          backgroundColor: getPriorityColor(task.priority),
-          color: '#000',
-          fontWeight: 600,
-          fontFamily: '"Rajdhani", sans-serif',
-          fontSize: '0.7rem',
-        }}
-      />
+      <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+        <Chip
+          label={task.priority.toUpperCase()}
+          size="small"
+          sx={{
+            backgroundColor: getPriorityColor(task.priority),
+            color: '#000',
+            fontWeight: 600,
+            fontFamily: '"Rajdhani", sans-serif',
+            fontSize: '0.7rem',
+          }}
+        />
+        {task.dueDate && (
+          <Typography
+            variant="caption"
+            sx={{
+              color: 'rgba(255, 255, 255, 0.5)',
+              fontFamily: '"Share Tech Mono", monospace',
+              fontSize: '0.7rem',
+            }}
+          >
+            {new Date(task.dueDate).toLocaleDateString()}
+          </Typography>
+        )}
+      </Box>
     </Paper>
   );
 };
 
 const KanbanColumn = ({ title, color, status, tasks, deleteTask }) => {
-  const columnTasks = tasks.filter(task => task.status === status);
-  const { setNodeRef } = useDroppable({ id: status });
+  const columnTasks = tasks
+    .filter(task => task.status === status)
+    .sort((a, b) => (a.order || 0) - (b.order || 0));
+  const { setNodeRef, isOver } = useDroppable({ id: status });
 
   return (
     <Paper
@@ -178,25 +208,48 @@ const KanbanBoard = ({ tasks, updateTask, deleteTask }) => {
 
     setActiveId(null);
 
-    if (!over) return;
-
     const activeTask = tasks.find(t => t.id === active.id);
     if (!activeTask) return;
 
     // Check if dropped on a column (status string)
     if (typeof over.id === 'string' && ['todo', 'in_progress', 'review', 'done'].includes(over.id)) {
       if (activeTask.status !== over.id) {
-        updateTask(activeTask.id, { status: over.id });
+        updateTask(activeTask.id, { status: over.id, order: Date.now() });
       }
       return;
     }
 
     // Check if dropped on another task
     const overTask = tasks.find(t => t.id === over.id);
-    if (overTask && activeTask.status !== overTask.status) {
-      updateTask(activeTask.id, { status: overTask.status });
+    if (!overTask) return;
+
+    // If moving to different column
+    if (activeTask.status !== overTask.status) {
+      updateTask(activeTask.id, { status: overTask.status, order: overTask.order - 0.5 });
+    } else {
+      // Same column - reorder by adjusting order values
+      const columnTasks = tasks
+        .filter(t => t.status === activeTask.status)
+        .sort((a, b) => (a.order || 0) - (b.order || 0));
+
+      const activeIndex = columnTasks.findIndex(t => t.id === active.id);
+      const overIndex = columnTasks.findIndex(t => t.id === over.id);
+
+      if (activeIndex !== overIndex) {
+        // Calculate new order value between adjacent tasks
+        let newOrder;
+        if (overIndex === 0) {
+          newOrder = (columnTasks[0].order || 0) - 1;
+        } else if (overIndex === columnTasks.length - 1) {
+          newOrder = (columnTasks[columnTasks.length - 1].order || 0) + 1;
+        } else {
+          const prevOrder = columnTasks[overIndex - (overIndex > activeIndex ? 0 : 1)].order || 0;
+          const nextOrder = columnTasks[overIndex + (overIndex > activeIndex ? 1 : 0)].order || 0;
+          newOrder = (prevOrder + nextOrder) / 2;
+        }
+        updateTask(activeTask.id, { order: newOrder });
+      }
     }
-    // If dropped on task in same column, do nothing (allow reordering visually)
   };
 
   const columns = [
@@ -242,12 +295,51 @@ const KanbanBoard = ({ tasks, updateTask, deleteTask }) => {
             </Grid>
           ))}
         </Grid>
-        <DragOverlay>
-          {activeId ? (
-            <TaskCard
-              task={tasks.find(t => t.id === activeId)}
-              deleteTask={deleteTask}
-            />
+        <DragOverlay dropAnimation={null}>
+          {activeId && tasks.find(t => t.id === activeId) ? (
+            <Paper
+              sx={{
+                p: 2,
+                width: '250px',
+                background: 'rgba(20, 20, 20, 0.8)',
+                border: '1px solid rgba(255, 0, 64, 0.3)',
+                cursor: 'grabbing',
+              }}
+            >
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1 }}>
+                <Typography
+                  variant="body1"
+                  sx={{
+                    color: '#fff',
+                    fontFamily: '"Rajdhani", sans-serif',
+                    fontSize: '1rem',
+                    fontWeight: 500,
+                    flex: 1,
+                  }}
+                >
+                  {tasks.find(t => t.id === activeId)?.title}
+                </Typography>
+              </Box>
+              <Chip
+                label={tasks.find(t => t.id === activeId)?.priority.toUpperCase()}
+                size="small"
+                sx={{
+                  backgroundColor: (() => {
+                    const priority = tasks.find(t => t.id === activeId)?.priority;
+                    switch (priority) {
+                      case 'high': return '#ff0040';
+                      case 'medium': return '#ffaa00';
+                      case 'low': return '#00ffff';
+                      default: return '#fff';
+                    }
+                  })(),
+                  color: '#000',
+                  fontWeight: 600,
+                  fontFamily: '"Rajdhani", sans-serif',
+                  fontSize: '0.7rem',
+                }}
+              />
+            </Paper>
           ) : null}
         </DragOverlay>
       </DndContext>

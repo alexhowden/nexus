@@ -31,6 +31,7 @@ function App() {
       dueDate: taskData.dueDate || null,
       createdAt: Date.now(),
       completedAt: null,
+      order: Date.now(),
     };
     setTasks([...tasks, newTask]);
   };
