@@ -20,7 +20,7 @@ Nexus is your AI-powered automation hub that eliminates boring, repetitive tasks
 - **Document Organization**: Smart filing, receipt management, search
 - **Shopping & Errands**: Lists, price tracking, package tracking
 
-See [FEATURES.md](FEATURES.md) for the complete roadmap.
+See [docs/FEATURES.md](docs/FEATURES.md) for detailed feature documentation.
 
 ## 🚀 Quick Start
 
